@@ -21,12 +21,12 @@ class Scheduler;
  * @brief 协程类
  */
 class Fiber : public std::enable_shared_from_this<Fiber> {
-friend class Scheduler;
+friend class Scheduler;    //Scheduler类可以访问Fiber类的私有对象
 public:
     typedef std::shared_ptr<Fiber> ptr;
 
     /**
-     * @brief 协程状态
+     * @brief 协程状态，enum有默认值，默认从0开始，即INIT=0，。。。
      */
     enum State {
         /// 初始化状态
@@ -47,7 +47,7 @@ private:
      * @brief 无参构造函数
      * @attention 每个线程第一个协程的构造
      */
-    Fiber();
+    Fiber();    //私有构造函数，不能直接从外部调用构造函数来创建对象，一般是通过静态成员函数或者友元函数来创建对象。
 
 public:
     /**
@@ -103,14 +103,14 @@ public:
     /**
      * @brief 返回协程状态
      */
-    State getState() const { return m_state;}
+    State getState() const { return m_state;}    // 返回的是枚举类型
 public:
 
     /**
      * @brief 设置当前线程的运行协程
      * @param[in] f 运行协程
      */
-    static void SetThis(Fiber* f);
+    static void SetThis(Fiber* f);    // 静态函数，不需要创建实例，同时也可以避免与其他文件的函数重名。
 
     /**
      * @brief 返回当前所在的协程
