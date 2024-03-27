@@ -215,6 +215,7 @@ void Fiber::MainFunc() {
     SYLAR_ASSERT2(false, "never reach fiber_id=" + std::to_string(raw_ptr->getId()));
 }
 
+
 void Fiber::CallerMainFunc() {
     Fiber::ptr cur = GetThis();
     SYLAR_ASSERT(cur);
