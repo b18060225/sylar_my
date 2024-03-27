@@ -9,11 +9,13 @@ namespace sylar {
 
 static Logger::ptr g_logger = SYLAR_LOG_NAME("system");
 
-static std::atomic<uint64_t> s_fiber_id {0};
-static std::atomic<uint64_t> s_fiber_count {0};
+static std::atomic<uint64_t> s_fiber_id {0};        //全局静态变量，用于生成协程id
+static std::atomic<uint64_t> s_fiber_count {0};        //全局静态变量，用于统计当前的协程数
 
-static thread_local Fiber* t_fiber = nullptr;
-static thread_local Fiber::ptr t_threadFiber = nullptr;
+//设计了以下两个线程局部变量用于保存协程上下文信息
+static thread_local Fiber* t_fiber = nullptr;            //线程局部变量，当前线程正在运行的协程
+//线程局部变量，当前线程的主协程，切换到这个协程，就相当于切换到了主线程中运行，智能指针形式
+static thread_local Fiber::ptr t_threadFiber = nullptr;    
 
 static ConfigVar<uint32_t>::ptr g_fiber_stack_size =
     Config::Lookup<uint32_t>("fiber.stack_size", 128 * 1024, "fiber stack size");
@@ -42,11 +44,11 @@ Fiber::Fiber() {
     m_state = EXEC;
     SetThis(this);
 
-    if(getcontext(&m_ctx)) {
-        SYLAR_ASSERT2(false, "getcontext");
+    if(getcontext(&m_ctx)) {    //获取协程上下文，并保存在m_ctx中
+        SYLAR_ASSERT2(false, "getcontext");    //设置断言，函数getcontext调用失败，程序终止并输出错误信息"getcontext"
     }
 
-    ++s_fiber_count;
+    ++s_fiber_count;    //统计协程数目
 
     SYLAR_LOG_DEBUG(g_logger) << "Fiber::Fiber main";
 }
